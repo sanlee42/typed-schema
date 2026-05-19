@@ -1,0 +1,7 @@
+error: shape attributes cannot be used on skipped or flattened serde fields
+  --> tests/ui/fail/flatten_with_shape_calc.rs:12:5
+   |
+12 | /     #[serde(flatten)]
+13 | |     #[shape(calc = "extra.id")]
+14 | |     extra: Extra,
+   | |________________^

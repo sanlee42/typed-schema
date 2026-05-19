@@ -1,0 +1,5 @@
+error: shape field attributes are only supported on named struct fields
+ --> tests/ui/fail/calc_on_tuple_field.rs:6:12
+  |
+6 | struct Bad(#[shape(calc = "value")] String);
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^

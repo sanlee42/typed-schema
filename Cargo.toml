@@ -1,0 +1,4 @@
+[workspace]
+members = ["typed-schema", "typed-schema-macros"]
+resolver = "3"
+

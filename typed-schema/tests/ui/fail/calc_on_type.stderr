@@ -1,0 +1,5 @@
+error: shape calc is only supported on fields
+ --> tests/ui/fail/calc_on_type.rs:5:23
+  |
+5 | #[shape(name = "bad", calc = "1 + 1")]
+  |                       ^^^^

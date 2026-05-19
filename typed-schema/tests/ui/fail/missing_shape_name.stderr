@@ -1,0 +1,5 @@
+error: missing #[shape(name = "...")]
+ --> tests/ui/fail/missing_shape_name.rs:5:8
+  |
+5 | struct MissingName {
+  |        ^^^^^^^^^^^

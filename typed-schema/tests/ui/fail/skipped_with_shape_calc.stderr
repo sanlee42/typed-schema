@@ -1,0 +1,7 @@
+error: shape attributes cannot be used on skipped or flattened serde fields
+ --> tests/ui/fail/skipped_with_shape_calc.rs:7:5
+  |
+7 | /     #[serde(skip)]
+8 | |     #[shape(calc = "hidden")]
+9 | |     hidden: String,
+  | |__________________^

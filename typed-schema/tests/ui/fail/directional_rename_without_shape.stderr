@@ -1,0 +1,5 @@
+error: directional serde rename requires #[shape(name = "...")]
+ --> tests/ui/fail/directional_rename_without_shape.rs:7:32
+  |
+7 |     #[serde(rename(serialize = "fieldOut", deserialize = "field_in"))]
+  |                                ^^^^^^^^^^

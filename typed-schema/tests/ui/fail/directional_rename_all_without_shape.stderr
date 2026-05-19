@@ -1,0 +1,5 @@
+error: directional serde rename_all requires field-level #[shape(name = "...")]
+ --> tests/ui/fail/directional_rename_all_without_shape.rs:5:32
+  |
+5 | #[serde(rename_all(serialize = "camelCase", deserialize = "snake_case"))]
+  |                                ^^^^^^^^^^^

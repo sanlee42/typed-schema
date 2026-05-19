@@ -1,0 +1,6 @@
+error: metric shape requires calc when any metric attribute is present
+ --> tests/ui/fail/partial_metric.rs:7:5
+  |
+7 | /     #[shape(grain = "user")]
+8 | |     score: i64,
+  | |______________^

@@ -1,0 +1,5 @@
+error: missing op output
+  --> tests/ui/fail/missing_op_output.rs:12:8
+   |
+12 | struct BadOp;
+   |        ^^^^^
