@@ -103,6 +103,149 @@ pub trait OpSpec {
     fn op() -> Op;
 }
 
+pub mod tool {
+    use serde::{Deserialize, Serialize};
+    use serde_json::{Value, json};
+
+    use crate::{Shape, VERSION};
+
+    #[derive(
+        Clone, Debug, PartialEq, Serialize, Deserialize, schemars::JsonSchema, typed_schema::Shape,
+    )]
+    #[shape(name = "tool_manifest")]
+    pub struct Manifest {
+        pub version: String,
+        pub tools: Vec<Tool>,
+        #[serde(default, skip_serializing_if = "Value::is_null")]
+        pub refs: Value,
+    }
+
+    impl Manifest {
+        #[must_use]
+        pub fn new(tools: Vec<Tool>) -> Self {
+            Self {
+                version: VERSION.to_owned(),
+                tools,
+                refs: Value::Null,
+            }
+        }
+
+        #[must_use]
+        pub fn refs(mut self, refs: Value) -> Self {
+            self.refs = refs;
+            self
+        }
+
+        #[must_use]
+        pub fn openai_tools(&self) -> Vec<Value> {
+            self.tools.iter().map(Tool::openai).collect()
+        }
+    }
+
+    #[derive(
+        Clone, Debug, PartialEq, Serialize, Deserialize, schemars::JsonSchema, typed_schema::Shape,
+    )]
+    #[shape(name = "tool_def")]
+    pub struct Tool {
+        pub name: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub desc: Option<String>,
+        pub input: String,
+        pub schema: Value,
+    }
+
+    impl Tool {
+        #[must_use]
+        pub fn for_shape<T>(name: impl Into<String>, desc: impl Into<String>) -> Self
+        where
+            T: Shape,
+        {
+            let shape = T::shape();
+            Self {
+                name: name.into(),
+                desc: Some(desc.into()),
+                input: shape.name,
+                schema: tool_schema(shape.schema),
+            }
+        }
+
+        #[must_use]
+        pub fn openai(&self) -> Value {
+            let mut function = json!({
+                "name": self.name,
+                "parameters": self.schema,
+            });
+            if let Some(desc) = &self.desc {
+                function["description"] = Value::String(desc.clone());
+            }
+
+            json!({
+                "type": "function",
+                "function": function,
+            })
+        }
+    }
+
+    #[derive(
+        Clone, Debug, PartialEq, Serialize, Deserialize, schemars::JsonSchema, typed_schema::Shape,
+    )]
+    #[serde(deny_unknown_fields)]
+    #[shape(name = "tool_draft")]
+    pub struct Draft {
+        #[serde(default)]
+        pub calls: Vec<Call>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub action: Option<Action>,
+    }
+
+    #[derive(
+        Clone, Debug, PartialEq, Serialize, Deserialize, schemars::JsonSchema, typed_schema::Shape,
+    )]
+    #[serde(deny_unknown_fields)]
+    #[shape(name = "tool_call")]
+    pub struct Call {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub id: Option<String>,
+        pub tool: String,
+        #[serde(default)]
+        pub args: Value,
+    }
+
+    #[derive(
+        Clone,
+        Debug,
+        PartialEq,
+        Eq,
+        Serialize,
+        Deserialize,
+        schemars::JsonSchema,
+        typed_schema::Shape,
+    )]
+    #[serde(tag = "kind", rename_all = "snake_case")]
+    #[shape(name = "tool_action")]
+    pub enum Action {
+        Clarify {
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            field: Option<String>,
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            question: Option<String>,
+        },
+        Unsupported {
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            field: Option<String>,
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            reason: Option<String>,
+        },
+    }
+
+    fn tool_schema(mut schema: Value) -> Value {
+        if let Value::Object(map) = &mut schema {
+            map.remove("$schema");
+        }
+        schema
+    }
+}
+
 #[must_use]
 pub fn json_schema<T: schemars::JsonSchema>() -> serde_json::Value {
     serde_json::to_value(schemars::schema_for!(T)).expect("schemars schema should serialize")

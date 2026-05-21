@@ -9,9 +9,10 @@ help: the trait `Shape` is not implemented for `Input`
    |
  5 | struct Input {
    | ^^^^^^^^^^^^
-help: the trait `Shape` is implemented for `Output`
-  --> tests/ui/fail/op_unknown_input_shape.rs:9:46
-   |
- 9 | #[derive(Serialize, Deserialize, JsonSchema, typed_schema::Shape)]
-   |                                              ^^^^^^^^^^^^^^^^^^^
-   = note: this error originates in the derive macro `typed_schema::Shape` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = help: the following other types implement trait `Shape`:
+             Action
+             Call
+             Draft
+             Manifest
+             Output
+             Tool
